@@ -10,8 +10,10 @@ class Polygon:
 
     def __init__(self, points: Sequence[Point]):
         self.points = points
-        self.point_cnt = len(points)
         self.convex = self.check_convex
+
+    def __len__(self):
+        return len(self.points)
 
     def check_convex(self):
         """
@@ -19,10 +21,9 @@ class Polygon:
 
         Note: polygon must not have consecutive collinear sides
         """
+        orient = np.sign(np.cross(self.points[0], self.points[len(self) - 1]))
 
-        orient = np.sign(np.cross(self.points[0], self.points[self.point_cnt - 1]))
-
-        for i in range(1, self.point_cnt):
+        for i in range(1, len(self)):
             tmp = np.cross(self.points[i], self.points[i - 1])
 
             if orient != np.sign(tmp):
@@ -30,73 +31,89 @@ class Polygon:
 
         self.convex = True
 
-    def __contains__(self, p: Point):
+    def __contains__(self, p):
+        if isinstance(p, Point):
+            return self._contains_pt(p)
+
+        if not np.logical_and.reduce([pt in self for pt in p.points], 0):  # checks if vertices are contained in self
+            return False
+        elif self.convex:
+            return True
+        else:
+            return self._contains_poly(p)
+
+    def _contains_pt(self, p: Point):
         """
-        :param p: point to check
-        :return:  polygon contains point p
+        :param p: point or polygon to check
+        :return:  polygon contains p
+
         a semi-infinite horizontal line is taken from point p
         p is inside the polygon if the number of times the ray intersects the edges of the polygon is odd
+
         check for intersection:
             if p is above or below both endpoints of the edge the ray doesn't intersect it
             otherwise we check for the relationship between the slopes of the edge and a ray connecting
             the lower point of the edge with the point
+
+
+        doesn't work for points on the edge of the polygon
         """
         contains = False
 
         i = 0
-        j = self.point_cnt - 1
+        j = len(self) - 1
+        while i < len(self):
+            xi, yi = tuple(self.points[i])
+            xj, yj = tuple(self.points[j])
 
-        while i < self.point_cnt:
-            x1 = self.points[i].x
-            y1 = self.points[i].y
-            x2 = self.points[j].x
-            y2 = self.points[j].y
-
-            if (y1 > p.y) != (y2 > p.y) and p.x < (x2 - x1) * (p.y - y1) / (y2 - y1) + x1:
+            if (yi > p.y) != (yj > p.y) and p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi:
                 contains = not contains
 
             j = i
             i += 1
 
+        """
+        ---> myb add later 
+
+        if not contains:
+            if p in self.points:
+                return True
+            if p in self.edges: // not implemented
+                return True
+        """
         return contains
 
-    # function is always called by a table which cannot contain a room
-    def containedIn(self, poly):
-
+    def _contains_poly(self, poly):
         """
         :param poly: polygon to check
-        :return: is self contained in poly
-        checks if a vertex from self iz contained in poly, if it isn't then it returns false
+        :return: is poly contained in self
         checks if there is an intersection between between the sides of the two polygons, if they intersect return false
         if both tests are passed return true
         """
 
-        for point in self.points:  # todo improve this?
-            if point not in poly:
-                return False
         i = 0
-        j = self.point_cnt - 1
+        j = poly.point_cnt - 1
 
-        while i < self.point_cnt:
-            x1 = self.points[i].x
-            y1 = self.points[i].y
-            x2 = self.points[j].x
-            y2 = self.points[j].y
+        while i < poly.point_cnt:
+            x1 = poly.points[i].x
+            y1 = poly.points[i].y
+            x2 = poly.points[j].x
+            y2 = poly.points[j].y
             k = 0
 
-            l = poly.point_cnt - 1
-            while k < poly.point_cnt - 1:
-                x3 = poly.points[k].x
-                y3 = poly.points[k].y
-                x4 = poly.points[l].x
-                y4 = poly.points[l].y
+            l = len(self) - 1
+            while k < len(self) - 1:
+                x3 = self.points[k].x
+                y3 = self.points[k].y
+                x4 = self.points[l].x
+                y4 = self.points[l].y
 
                 A = [[x1 - x2, x4 - x3], [y1 - y2, y4 - y3]]
                 B = [x4 - x2, y4 - y2]
 
-                if (np.linalg.matrix_rank(A) == 2):
+                if np.linalg.matrix_rank(A) == 2:
                     sol = np.linalg.solve(A, B)
-                    if (0 <= sol[0] and sol[0] <= 1 and 0 <= sol[1] and sol[1] <= 1):
+                    if 0 <= min(sol[0], sol[1]) and max(sol[0], sol[1]) <= 1:
                         return False
 
                 l = k
