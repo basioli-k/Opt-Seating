@@ -92,28 +92,24 @@ class Polygon:
         """
 
         i = 0
-        j = poly.point_cnt - 1
+        j = len(poly) - 1
 
-        while i < poly.point_cnt:
-            x1 = poly.points[i].x
-            y1 = poly.points[i].y
-            x2 = poly.points[j].x
-            y2 = poly.points[j].y
+        while i < len(poly):
+            x1, y1 = tuple(poly.points[i])
+            x2, y2 = tuple(poly.points[j])
             k = 0
 
             l = len(self) - 1
-            while k < len(self) - 1:
-                x3 = self.points[k].x
-                y3 = self.points[k].y
-                x4 = self.points[l].x
-                y4 = self.points[l].y
+            while k < l:
+                x3, y3 = tuple(self.points[k])
+                x4, y4 = tuple(self.points[l])
 
                 A = [[x1 - x2, x4 - x3], [y1 - y2, y4 - y3]]
                 B = [x4 - x2, y4 - y2]
 
                 if np.linalg.matrix_rank(A) == 2:
                     sol = np.linalg.solve(A, B)
-                    if 0 <= min(sol[0], sol[1]) and max(sol[0], sol[1]) <= 1:
+                    if 0 <= min(sol) and max(sol) <= 1:
                         return False
 
                 l = k
