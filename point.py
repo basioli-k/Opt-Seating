@@ -6,5 +6,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
     def distance(self, p):
         return math.sqrt((self.x-p.x)**2 + (self.y-p.y)**2)
