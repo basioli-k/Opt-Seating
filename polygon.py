@@ -11,11 +11,24 @@ class Polygon:
     def __init__(self, points: Sequence[Point]):
         self.points = points
         self.point_cnt = len(points)
+        self.convex = self.check_convex
 
-    """ 
-    todo:
-    def __is_convex__(self):
-    """
+    def check_convex(self):
+        """
+        :return: True if polygon is convex
+
+        Note: polygon must not have consecutive collinear sides
+        """
+
+        orient = np.sign(np.cross(self.points[0], self.points[self.point_cnt - 1]))
+
+        for i in range(1, self.point_cnt):
+            tmp = np.cross(self.points[i], self.points[i - 1])
+
+            if orient != np.sign(tmp):
+                self.convex = False
+
+        self.convex = True
 
     def __contains__(self, p: Point):
         """
