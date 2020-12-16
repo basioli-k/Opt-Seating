@@ -2,7 +2,7 @@ import math
 
 
 class Point:
-    def __init__(self,x=0,y=0):
+    def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
 
@@ -10,5 +10,5 @@ class Point:
         yield self.x
         yield self.y
 
-    def distance(self, p):
+    def distance(self, p: 'Point') -> float:
         return math.sqrt((self.x-p.x)**2 + (self.y-p.y)**2)

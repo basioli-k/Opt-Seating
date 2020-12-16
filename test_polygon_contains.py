@@ -1,8 +1,10 @@
 from point import Point
 from polygon import Polygon
 
+from unittest import TestCase
 
-if __name__ == "__main__":
+
+class PolygonContainsTest(TestCase):
     q1 = Point(20, 10)
     q2 = Point(50, 125)
     q3 = Point(125, 90)
@@ -20,33 +22,29 @@ if __name__ == "__main__":
     p3 = Point(35, 90)  # point at same height as vertex
     p4 = Point(50, 10)  # point on edge of polygon
 
-    q.draw(title='points in q', points=[p1, p2, p3, p4])
-    q.draw(title='sq in q', points=sq.points)
+    def test_point_inside(self):
+        assert self.p1 in self.q
 
-    # Test 1: Point inside of polygon
-    assert p1 in q
+    def test_point_outside(self):
+        assert self.p2 not in self.q
 
-    # Test 2: Point outside of polygon
-    assert p2 not in q
+    def test_point_at_same_height_as_vertex(self):
+        assert self.p3 not in self.q
 
-    # Test 3: Point at same height as vertex
-    assert p3 not in q
+    def test_point_on_edge_of_polygon(self):
+        assert self.p4 in self.q
 
-    # Test 4: Point on bottom line of polygon
-    assert p4 in q
+    def test_q_convex(self):
+        assert self.q.convex
 
-    # Test 5: q and sq are convex
-    assert q.convex and sq.convex
+    def test_sq_convex(self):
+        assert self.sq.convex
 
-    # Test 6: square in convex polygon
-    assert sq in q
+    def test_polygon_in_convex_polygon(self):
+        assert self.sq in self.q
 
-    # # Test 7: vertex in polygon
-    # doesn't pass
-    # assert q1 in q
-    # assert q2 in q
-    # assert q3 in q
-    # assert q4 in q
+    def test_vertex_in_polygon(self):
+        assert self.q1 in self.q and self.q2 in self.q and self.q3 in self.q and self.q4 in self.q
 
     # # Test 8: points on edge of polygon
     # doesn't pass
