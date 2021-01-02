@@ -3,7 +3,7 @@ from shapely.geometry import Polygon, Point
 
 
 class Table(Polygon, ABC):
-    " represents a table in a room "
+    " represents a table "
 
     def __init__(self, length, width):
         Polygon.__init__(self,
