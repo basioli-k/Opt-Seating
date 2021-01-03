@@ -3,9 +3,21 @@ from shapely.geometry import Polygon, Point
 
 
 class Table(Polygon, ABC):
-    " represents a table "
+    """ represents a table """
 
     def __init__(self, length, width):
-        Polygon.__init__(self,
-                         [Point(-length / 2, -width / 2), Point(-length / 2, width / 2), Point(length / 2, width / 2),
-                          Point(length / 2, -width / 2)])
+        try:
+            Polygon.__init__(self, list(map(Point, [
+                (-length / 2, -width / 2), (-length / 2, width / 2), (length / 2, width / 2), (length / 2, -width / 2) ]
+                                            )
+                                        )
+            )
+        except:
+            try:
+                Polygon.__init__(self, length)
+            except:
+                raise ValueError
+
+
+
+
