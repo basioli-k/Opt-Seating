@@ -20,4 +20,5 @@ class Room(Polygon, ABC):
         #todo viditi kako translatirati poligon za neki vektor
         #table = translate(table, centroid[0], centroid[1])
         #print(table.exterior.coords[:])
+        #self.table.append(table)
 
