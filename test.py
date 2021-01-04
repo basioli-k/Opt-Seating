@@ -7,3 +7,4 @@ if __name__ == '__main__':
     table = Polygon(list(map(Point, [(-0.5, -0.5), (-0.5, 0.5), (0.5, 0.5), (0.5, -0.5)])))
 
     room.place(table)
+    room.plot()
