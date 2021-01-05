@@ -1,7 +1,9 @@
-from typing import Union
+from random import uniform
+from typing import Union, Tuple
 
 from room import Room
 from table import Table
+from table_group import SelectionFromTableGroup
 
 from matplotlib import pyplot as plt
 
@@ -16,23 +18,44 @@ class MatplotlibDrawer:
             obj: Union[
                 Room,
                 Table,
+                SelectionFromTableGroup,
             ],
+            translation: Tuple[float, float] = (0, 0),
+            rotation: float = 0
     ):
+        if isinstance(obj, SelectionFromTableGroup):
+            for t, r in zip(obj.translations(), obj.rotations()):
+                self.__call__(obj._template, translation=t, rotation=r)
+            return
+
         if isinstance(obj, Room):
             x, y = obj.exterior_xy()
-            self._ax.plot(x, y, color='#6699cc')
+            self._ax.fill(x, y, color='#dae3e5')
+
             for x, y in obj.interiors_xy():
-                self._ax.fill(x, y, color='#6699cc')
+                self._ax.fill(x, y, color='white')
 
         elif isinstance(obj, Table):
-            t_x, t_y = obj.table_exterior_xy()
-            self._ax.plot(t_x, t_y, color='grey')
+            t_x, t_y = obj.table_exterior_xy(xoff=translation[0],
+                                             yoff=translation[1],
+                                             angle=rotation)
+            self._ax.plot(t_x, t_y, color='#303631')
+            self._ax.fill(t_x, t_y, color='#545e56')
 
-            x, y = obj.chairs_xy()
-            self._ax.scatter(x, y, color='pink', zorder=3, s=3)
+            x, y = obj.chairs_xy(xoff=translation[0],
+                                 yoff=translation[1],
+                                 angle=rotation)
+            self._ax.scatter(x, y, color='#b79492', zorder=3, s=20)
 
         else:
             raise NotImplementedError(f"Don't know how to draw {type(obj)}")
+
+    def scatter(self, x, y, color: str = 'black'):
+        self._ax.scatter(x, y, color=color, zorder=3, s=50)
+
+    def plot(self, x, y, *, stroke: str = 'black', fill: str = 'grey'):
+        self._ax.plot(x, y, color=stroke)
+        self._ax.fill(x, y, color=fill)
 
     def show(self):
         plt.show()

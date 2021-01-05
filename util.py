@@ -34,6 +34,10 @@ def circle_points(
 T = TypeVar('T')
 
 
+def aslist(a):
+    return a.tolist()
+
+
 def with_dimensions(fn: Callable[..., T]) -> Callable[..., T]:
     def wrapper(name: str, **kwargs: Any):
         return fn(name, **{k: to_cm(v) for k, v in kwargs.items()})
