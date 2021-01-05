@@ -1,3 +1,5 @@
-numpy==1.19.4
-
+numpy~=1.19.4
 Shapely~=1.7.1
+matplotlib~=3.3.3
+svgwrite~=1.4
+cairosvg~=2.5.0

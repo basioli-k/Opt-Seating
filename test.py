@@ -1,12 +1,29 @@
-from room import Room
-from table import Table
-from shapely.geometry import Point, Polygon
+import table_factory
+import room_factory
+from svg import Svg
+
 
 if __name__ == '__main__':
-    room = Room([(0, 3), (-1, 0), (0, -1), (1, 0)])
-    table1 = Table([(-0.5, -0.5), (-0.5, 0.5), (0.5, 0.5), (0.5, -0.5)])
-    table2 = Table(0.2, 0.2, lw=True)
+    room = room_factory.create(
+        'o',
+        width='10m',
+    )
+    table_warehouse = (
+        table_factory.create_multiple(10, '2222', width=140, height=140),
+        table_factory.create_multiple(20, '2020', width=120, height=60),
+    )
 
-    room.place(table1)
-    room.place(table2)
-    room.plot()
+
+
+    #
+    # plt = MatplotlibDrawer()
+    # room.visit(plt)
+    # for table in tables:
+    #     table.visit(plt)
+    # plt.show()
+
+    svg = Svg()
+    room.visit(svg)
+    for table in tables:
+        table.visit(svg)
+    svg.save()
