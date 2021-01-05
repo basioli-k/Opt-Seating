@@ -1,8 +1,9 @@
 import table_factory
 import room_factory
+from mutator import Mutator
 from plt import MatplotlibDrawer
 # from svg import Svg
-from table_group import SelectionFromTableGroup, SelectionGrouped
+from table_group import SelectionFromTableGroup, SeatingPlan
 
 if __name__ == '__main__':
     room = room_factory.create(
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     print(f"group 1 has {group1.num_ppl()} people")
     print(f"group 2 has {group2.num_ppl()} people")
 
-    selection = SelectionGrouped([group1, group2])
+    selection = SeatingPlan([group1, group2])
     assert group1.num_ppl() + group2.num_ppl() == selection.num_ppl()
 
     for i in selection.mask_same_table():
@@ -39,15 +40,21 @@ if __name__ == '__main__':
     # x, y = selection.chairs_xy()
     # tables = selection.tables_xy()
 
-    # plt = MatplotlibDrawer()
-    # room.visit(plt)
-    # group1.visit(plt)
-    # group2.visit(plt)
-    #
-    # # plt.scatter(x, y, color="red")
-    # # for table in tables:
-    # #     plt.plot(*table, stroke='red', fill='red')
-    # plt.show()
+    plt = MatplotlibDrawer()
+    room.visit(plt)
+    selection.visit(plt)
+    # plt.scatter(x, y, color="red")
+    # for table in tables:
+    #     plt.plot(*table, stroke='red', fill='red')
+    plt.show()
+
+    mutator = Mutator()
+    selection.visit(mutator)
+
+    plt = MatplotlibDrawer()
+    room.visit(plt)
+    selection.visit(plt)
+    plt.show()
 
     # svg = Svg()
     # room.visit(svg)

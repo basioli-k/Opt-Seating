@@ -1,9 +1,8 @@
-from random import uniform
 from typing import Union, Tuple
 
 from room import Room
 from table import Table
-from table_group import SelectionFromTableGroup
+from table_group import SelectionFromTableGroup, SeatingPlan
 
 from matplotlib import pyplot as plt
 
@@ -19,13 +18,19 @@ class MatplotlibDrawer:
                 Room,
                 Table,
                 SelectionFromTableGroup,
+                SeatingPlan,
             ],
             translation: Tuple[float, float] = (0, 0),
             rotation: float = 0
     ):
+        if isinstance(obj, SeatingPlan):
+            for group in obj._groups:  # todo eskopelja FIX!!!
+                self.__call__(group)
+            return
+
         if isinstance(obj, SelectionFromTableGroup):
-            for t, r in zip(obj.translations(), obj.rotations()):
-                self.__call__(obj._template, translation=t, rotation=r)
+            for t, r in zip(obj.translations, obj.rotations):
+                self.__call__(obj._template, translation=t, rotation=r) # todo eskopelja FIX!!!
             return
 
         if isinstance(obj, Room):
