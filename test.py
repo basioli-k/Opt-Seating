@@ -1,63 +1,60 @@
-import table_factory
+import cProfile
 import room_factory
+import table_factory
+from evaluator import Evaluator
 from mutator import Mutator
-from plt import MatplotlibDrawer
-# from svg import Svg
-from table_group import SelectionFromTableGroup, SeatingPlan
+from plt import visualize_solution, animate
+from searcher import Searcher
+from seating_plan import SeatingPlan
 
 if __name__ == '__main__':
     room = room_factory.create(
         'o',
-        width='10m',
+        width='12m',
+        inner_width='3m'
     )
-    table_warehouse = (
-        table_factory.create_multiple(10, '2222', width=140, height=140),
-        table_factory.create_multiple(20, '2020', width=120, height=60),
+    tables = (
+        *table_factory.create_multiple(6, 'ltrb', width=150, height=80, ltrb=(0, 2, 0, 2)),
+        *table_factory.create_multiple(6, 'ltrb', width=130, height=75, ltrb=(0, 2, 0, 2)),
+        *table_factory.create_multiple(4, 'ltrb', width=150, height=150, ltrb=(2, 2, 2, 2)),
     )
 
-    group1 = SelectionFromTableGroup(template=table_factory.create('2222', width=140, height=140), available=10)
-    group1.add(rotation=90)
-    group1.add(translation=(100, 170))
-    group1.add(translation=(-150, -70), rotation=20)
+    seating_plan = SeatingPlan(tables, tuple())
 
-    group2 = SelectionFromTableGroup(template=table_factory.create('2020', width=120, height=60), available=5)
-    group2.add(translation=(300, 270))
-    group2.add(translation=(-370, -100), rotation=20)
+    mutator = Mutator(
+        room,
+        table_mutation_probability=.02,
+        table_mutation_offset_stdev=100,
+        table_mutation_angle_sigma=10,
+    )
 
-    print(f"group 1 has {group1.num_ppl()} people")
-    print(f"group 2 has {group2.num_ppl()} people")
+    evaluator = Evaluator(room)
 
-    selection = SeatingPlan([group1, group2])
-    assert group1.num_ppl() + group2.num_ppl() == selection.num_ppl()
+    def log_fn(i, evaluated_population):
+        if i % 100:
+            return
 
-    for i in selection.mask_same_table():
-        for j in i:
-            if j:
-                print('+', end=" ")
-            else:
-                print('-', end=" ")
-        print('\n')
-    # x, y = selection.chairs_xy()
-    # tables = selection.tables_xy()
+        best_fitness, best_instance = evaluated_population[0]
+        worst_fitness, worst_instance = evaluated_population[-1]
 
-    plt = MatplotlibDrawer()
-    room.visit(plt)
-    selection.visit(plt)
-    # plt.scatter(x, y, color="red")
-    # for table in tables:
-    #     plt.plot(*table, stroke='red', fill='red')
-    plt.show()
+        print(f"iteration: {i}, "
+              f"population size: {len(evaluated_population)}, "
+              f"fittness range: {abs(round(best_fitness,2))}-{abs(round(worst_fitness,2))}")
+        visualize_solution(room, best_instance, save=f'data/{i:05d}.png')
 
-    mutator = Mutator()
-    selection.visit(mutator)
+    searcher = Searcher()
 
-    plt = MatplotlibDrawer()
-    room.visit(plt)
-    selection.visit(plt)
-    plt.show()
+    run = lambda: searcher(
+        mutate_fn=mutator,
+        evaluate_fn=evaluator,
+        log_fn=log_fn,
+        initial_population=(seating_plan,),
+        max_population_size=1,
+        num_iterations=10_000,
+    )
 
-    # svg = Svg()
-    # room.visit(svg)
-    # for table in table_warehouse:
-    #    table.visit(svg)
-    # svg.save()
+    run()
+    animate()
+
+    # cProfile.run('run()', sort=SortKey.CUMULATIVE)
+# 5.477

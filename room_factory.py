@@ -93,5 +93,5 @@ def create_o(
 
 
 @with_dimensions
-def create(name: str, **kwargs: Any):
+def create(name: str, **kwargs: Any) -> Room:
     return globals()['create_' + name](**kwargs)

@@ -1,5 +1,7 @@
-numpy~=1.19.4
+numpy~=1.19.5
+scipy~=1.6.0
 Shapely~=1.7.1
 matplotlib~=3.3.3
 svgwrite~=1.4
 cairosvg~=2.5.0
+opencv-python~=4.5.1.
