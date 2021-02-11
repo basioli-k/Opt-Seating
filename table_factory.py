@@ -18,6 +18,8 @@ def _create_rect(
             y=height / 2,
         )),
         chairs=MultiPoint(chairs),
+        width=width,
+        height=height
     )
 
 
