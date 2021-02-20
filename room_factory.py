@@ -16,6 +16,7 @@ def create_rect(
             x=width / 2,
             y=height / 2,
         )),
+        biggest_distance=width**2 + height**2,
     )
 
 
@@ -37,6 +38,7 @@ def create_L(
                 (width / 2, -height / 2),
             )
         ),
+        biggest_distance=width**2 + height**2,
     )
 
 
@@ -53,6 +55,7 @@ def create_delta(
                 (width / 2, -height / 2),
             )
         ),
+        biggest_distance=width**2 + height**2,
     )
 
 
@@ -67,6 +70,7 @@ def create_circle(
                 num_points=num_slides,
             ),
         ),
+        biggest_distance=width,
     )
 
 
@@ -89,6 +93,7 @@ def create_o(
                 ),
             )
         ),
+        biggest_distance=width,
     )
 
 

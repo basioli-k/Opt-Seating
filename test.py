@@ -6,8 +6,27 @@ from mutator import Mutator
 from plt import visualize_solution, animate
 from searcher import Searcher
 from seating_plan import SeatingPlan
+from crossover import Crossover
+import numpy as np
+import time
 
 if __name__ == '__main__':
+    '''
+    tuple_test = tuple((i for i in range(10000000))) #10 milijuna
+    sum = 0
+    t1 = time.time()
+    for i in range(len(tuple_test)):
+        sum += tuple_test[i]
+    t2 = time.time()
+    list_test = np.array(tuple_test)
+    t4 = time.time()
+    for i in range(len(list_test)):
+        sum += list_test[i]
+    t3 = time.time()
+    print("iterating tuple: ", t2-t1)
+    print("with copying np.array: ", t3-t2)
+    print("without copying np.array", t3-t4)
+    '''
     room = room_factory.create(
         'o',
         width='12m',
@@ -43,18 +62,20 @@ if __name__ == '__main__':
         visualize_solution(room, best_instance, save=f'data/{i:05d}.png')
 
     searcher = Searcher()
-
+    crossover = Crossover()
     run = lambda: searcher(
         mutate_fn=mutator,
         evaluate_fn=evaluator,
+        crossover= crossover,
         log_fn=log_fn,
         initial_population=(seating_plan,),
-        max_population_size=1,
+        max_population_size=5,  #ovo si promjenio
         num_iterations=10_000,
+        biggest_distance=room._biggest_distance*1.5     #mozda bi bilo dobro skalirati?
     )
 
     run()
-    animate()
+    #animate()
 
     # cProfile.run('run()', sort=SortKey.CUMULATIVE)
 # 5.477

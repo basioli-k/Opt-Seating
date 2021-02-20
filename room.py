@@ -11,8 +11,10 @@ class Room:
             self,
             *,
             shape: Polygon,
+            biggest_distance: float,
     ):
         self._shape = shape
+        self._biggest_distance = biggest_distance
 
     @property
     def exterior_xy(self):

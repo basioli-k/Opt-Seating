@@ -18,7 +18,7 @@ class TableTemplate:
         return len(self.chairs)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class Table:
     template: TableTemplate
     offset_x: float = 0
