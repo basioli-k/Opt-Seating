@@ -11,22 +11,7 @@ import numpy as np
 import time
 
 if __name__ == '__main__':
-    '''
-    tuple_test = tuple((i for i in range(10000000))) #10 milijuna
-    sum = 0
-    t1 = time.time()
-    for i in range(len(tuple_test)):
-        sum += tuple_test[i]
-    t2 = time.time()
-    list_test = np.array(tuple_test)
-    t4 = time.time()
-    for i in range(len(list_test)):
-        sum += list_test[i]
-    t3 = time.time()
-    print("iterating tuple: ", t2-t1)
-    print("with copying np.array: ", t3-t2)
-    print("without copying np.array", t3-t4)
-    '''
+
     room = room_factory.create(
         'o',
         width='12m',

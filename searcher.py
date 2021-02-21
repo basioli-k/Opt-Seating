@@ -2,7 +2,7 @@ import operator
 import random
 from dataclasses import dataclass
 from typing import Callable, Tuple, TypeVar, Generic, Sequence, Iterable
-
+import numpy as np
 from crossover import Crossover
 
 T = TypeVar('T')
@@ -21,29 +21,39 @@ def squared_offset_distance(table1, table2):
     return (table1.offset_x - table2.offset_y) ** 2 + (table1.offset_y - table2.offset_y) ** 2
 
 
+def population_metric(room_layout1, room_layout2, biggest_distance):  # ideja je sto je ovo veće to su populacije razlicitije
+    compared_to = [False, ] * len(room_layout2.tables)  # mozemo uzeti neku brojku koja ce odredivati kad je razlika dovoljno velika
+    metric = 0  # npr dijagonala ili promjer * n/5 gdje je n broj stolova ili tako nesto
+    for i in range(0, len(room_layout1.tables)):
+        shortest_distance = biggest_distance  # set this to some number, example diagonal of the room, diameter,...
+        shortest_distance_index = -1
+        # todo if table isn't used (false in used_table_mask) dont go in the other loop
+        for j in range(0, len(room_layout2.tables)):
+            if same_dimension_tables(room_layout1.tables[i], room_layout2.tables[j]) and not compared_to[j]:
+                dist = squared_offset_distance(room_layout1.tables[i], room_layout2.tables[j])
+                if dist < shortest_distance:
+                    shortest_distance = dist
+                    if shortest_distance_index != -1:
+                        compared_to[shortest_distance_index] = False
+                    shortest_distance_index = j
+                    compared_to[shortest_distance_index] = True
+        metric += shortest_distance
+
+    return metric > biggest_distance
+
+
+def population_metric_2(room_layout1, room_layout2, biggest_distance):
+    metric = 0
+    layout1 = np.array([(table.offset_x, table.offset_y) for table in room_layout1.tables])
+    layout2 = np.array([(table.offset_x, table.offset_y) for table in room_layout2.tables])
+    #used_table = np.array(room_layout1.used_table_mask && room_layout2.used_tables_mask)
+    metric = np.sum(np.linalg.norm(layout1-layout2)**2)
+    #todo obavezno promijeniti kada dodemo used_tables_mask
+    return metric > biggest_distance
+
+
 @dataclass(frozen=True)
 class Searcher(Generic[T]):
-
-    def population_metric(self, room_layout1, room_layout2,
-                          biggest_distance):  # ideja je sto je ovo veće to su populacije razlicitije
-        compared_to = [False, ] * len(room_layout2.tables)  # mozemo uzeti neku brojku koja ce odredivati kad je razlika dovoljno velika
-        metric = 0  # npr dijagonala ili promjer * n/5 gdje je n broj stolova ili tako nesto
-        for i in range(0, len(room_layout1.tables)):
-            shortest_distance = biggest_distance  # set this to some number, example diagonal of the room, diameter,...
-            shortest_distance_index = -1
-            # todo if table isn't used (false in used_table_mask) dont go in the other loop
-            for j in range(0, len(room_layout2.tables)):
-                if same_dimension_tables(room_layout1.tables[i], room_layout2.tables[j]) and not compared_to[j]:
-                    dist = squared_offset_distance(room_layout1.tables[i], room_layout2.tables[j])
-                    if dist < shortest_distance:
-                        shortest_distance = dist
-                        if shortest_distance_index != -1:
-                            compared_to[shortest_distance_index] = False
-                        shortest_distance_index = j
-                        compared_to[shortest_distance_index] = True
-            metric += shortest_distance
-
-        return metric > biggest_distance
 
     """
         searches for the solution
@@ -91,7 +101,7 @@ class Searcher(Generic[T]):
                     )
             ):
                 for c in mutate_fn(x):
-                    if self.population_metric(c, x, biggest_distance):
+                    if population_metric(c, x, biggest_distance):
                         temp.append(c)
 
             children = _evaluate_population(tuple(temp))
