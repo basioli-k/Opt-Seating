@@ -53,22 +53,23 @@ app.layout = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
+    html.P(id='output-text'),
     html.Div(id='output-data-upload'),
 ])
 
 def optimal_seating(df):
 
-    # TODO izvuci informacije iz df-a
     room = room_factory.create(
-        'o',
-        width='12m',
-        inner_width='3m'
+        df.loc[0][0],
+        width=df.loc[0][1],
+        inner_width=df.loc[0][2]
     )
-    tables = (
-        *table_factory.create_multiple(6, 'ltrb', width=150, height=80, ltrb=(0, 2, 0, 2)),
-        *table_factory.create_multiple(6, 'ltrb', width=130, height=75, ltrb=(0, 2, 0, 2)),
-        *table_factory.create_multiple(4, 'ltrb', width=150, height=150, ltrb=(2, 2, 2, 2)),
-    )
+
+    tables = ()
+    for index, row in df.iterrows():
+        if index == 0: 
+            continue
+        tables = tables + (*table_factory.create_multiple(int(row[0]), row[1], width=int(row[2]), height=int(row[3]), ltrb=(int(row[4]), int(row[5]), int(row[6]), int(row[7]))),)
 
     seating_plan = SeatingPlan(tables, tuple())
 
@@ -127,37 +128,23 @@ def parse_contents(contents, filename, date):
         ])
 
     optimal_seating(df)
-
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        dash_table.DataTable(
-            data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df.columns]
-        ),
-
-        html.Hr(),  # horizontal line
-
-        # For debugging, display the raw contents provided by the web browser
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        })
-    ])
-
+@app.callback([Output('output-text', 'children')],
+             [Input('upload-data', 'contents')],
+              [State('upload-data', 'filename'),
+              State('upload-data', 'last_modified')])
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:  
+        return ["Uspjesno ucitani podaci. Pogledajte novo otvoreni prozor kako biste vidjeli rezultate."]
 
 @app.callback([Output('output-data-upload', 'children')],
              [Input('upload-data', 'contents')],
               [State('upload-data', 'filename'),
               State('upload-data', 'last_modified')])
 def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+    if list_of_contents is not None:  
+        children = [parse_contents(c, n, d) for c, n, d in 
+        zip(list_of_contents, list_of_names, list_of_dates)]
+        return [""]
 
 
 
