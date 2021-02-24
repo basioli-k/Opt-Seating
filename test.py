@@ -1,14 +1,13 @@
 import cProfile
 import room_factory
 import table_factory
+import numpy as np
 from evaluator import Evaluator
 from mutator import Mutator
 from plt import visualize_solution, animate
 from searcher import Searcher
 from seating_plan import SeatingPlan
 from crossover import Crossover
-import numpy as np
-import time
 
 if __name__ == '__main__':
 
@@ -23,7 +22,7 @@ if __name__ == '__main__':
         *table_factory.create_multiple(4, 'ltrb', width=150, height=150, ltrb=(2, 2, 2, 2)),
     )
 
-    seating_plan = SeatingPlan(tables, tuple())
+    seating_plan = SeatingPlan(tables, np.array([True for i in range(len(tables))]))
 
     mutator = Mutator(
         room,
@@ -40,7 +39,7 @@ if __name__ == '__main__':
 
         best_fitness, best_instance = evaluated_population[0]
         worst_fitness, worst_instance = evaluated_population[-1]
-
+        print("tables: ", best_instance.no_of_used_tables())
         print(f"iteration: {i}, "
               f"population size: {len(evaluated_population)}, "
               f"fittness range: {abs(round(best_fitness,2))}-{abs(round(worst_fitness,2))}")

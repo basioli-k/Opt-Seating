@@ -46,8 +46,11 @@ def population_metric_2(room_layout1, room_layout2, biggest_distance):
     metric = 0
     layout1 = np.array([(table.offset_x, table.offset_y) for table in room_layout1.tables])
     layout2 = np.array([(table.offset_x, table.offset_y) for table in room_layout2.tables])
+    used_tables_1 = np.array([table for table in room_layout1.used_tables_mask])
+    used_tables_2 = np.array([table for table in room_layout2.used_tables_mask])
+    used_tables = np.logical_and(used_tables_1, used_tables_2)
     #used_table = np.array(room_layout1.used_table_mask && room_layout2.used_tables_mask)
-    metric = np.sum(np.linalg.norm(layout1-layout2)**2)
+    metric = np.sum((np.linalg.norm(layout1-layout2)**2) * used_tables)
     #todo obavezno promijeniti kada dodemo used_tables_mask
     return metric > biggest_distance
 
@@ -63,7 +66,7 @@ class Searcher(Generic[T]):
             self,
             mutate_fn: Callable[[T], Iterable[T]],
             evaluate_fn: Callable[[T], float],
-            crossover: Crossover,
+            crossover: Callable[[T], bool],
             log_fn: Callable[..., None],
             initial_population: Tuple[T],
             max_population_size: int,
@@ -85,11 +88,10 @@ class Searcher(Generic[T]):
 
         evaluated_population = _evaluate_population(initial_population)
         for i in range(num_iterations):
+
             evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
-            size = max_population_size if abs(evaluated_population[-1][0]) - abs(evaluated_population[0][0]) >= 1 else 1
-            evaluated_population = evaluated_population[:size]
-            #crossover.cross_plans(evaluated_population, evaluate_fn)
-            #evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
+
+            evaluated_population = evaluated_population[:max_population_size]
             log_fn(i, evaluated_population)
 
             temp = []
@@ -101,10 +103,11 @@ class Searcher(Generic[T]):
                     )
             ):
                 for c in mutate_fn(x):
-                    if population_metric(c, x, biggest_distance):
+                    if population_metric_2(c, x, biggest_distance):
                         temp.append(c)
 
             children = _evaluate_population(tuple(temp))
             evaluated_population.extend(
                 children
             )
+            #crossover(evaluated_population)

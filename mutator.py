@@ -111,12 +111,14 @@ class Mutator:
                         self._mv_table(table) if random.random() < self.table_mutation_probability else table
                         for table in seating_plan.tables
                     ),
-                    used_tables_mask=tuple(
-                        bit ^ (random.random() < self.used_tables_mutation_probability)
-                        for bit in seating_plan.used_tables_mask
-                    ),
+                    used_tables_mask=seating_plan.used_tables_mask
+                    #used_tables_mask=tuple(
+                    #    bit ^ (random.random() < self.used_tables_mutation_probability)
+                    #    for bit in seating_plan.used_tables_mask
+                    #),
                 )
             )
+
         )
 
     def _mv_table(self, table: Table) -> Table:
@@ -213,3 +215,11 @@ class Mutator:
                 ) if i in (j, k) else table for i, table in enumerate(tables)
             )
         )
+
+    def maybe_remove_or_add_table(self, seating_plan: SeatingPlan) -> SeatingPlan:
+        if not random.random() < 0.15:
+            return;
+        new_seating_plan = seating_plan
+        i = random.randint(0, len(new_seating_plan.tables) - 1)
+        new_seating_plan.used_tables_mask[i] = not new_seating_plan.used_tables_mask[i]
+        return new_seating_plan
