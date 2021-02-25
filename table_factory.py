@@ -1,3 +1,4 @@
+import random
 from typing import Tuple, Any, Iterable
 
 from shapely.geometry import MultiPoint, Polygon
@@ -80,7 +81,11 @@ def create_table(
         name: str,
         **kwargs,
 ):
-    return Table(template=create_template(name, **kwargs))
+    return Table(
+        template=create_template(name, **kwargs),
+        offset_x=(random.random() - 0.5) * 20 * 100,
+        offset_y=(random.random() - 0.5) * 20 * 100,
+    )
 
 
 def create_multiple(

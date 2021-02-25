@@ -40,8 +40,8 @@ def animate():
     video.release()
 
 
-def visualize_solution(room: Room, seating_plan: SeatingPlan, *, show=True, save: str = None, animate=False):
-    with OpenCVDrawer() as drawer:
+def visualize_solution(room: Room, seating_plan: SeatingPlan, *, show=True, save: str = None):
+    with MatplotlibDrawer() as drawer:
         drawer(room)
         drawer(seating_plan)
         if save:
@@ -127,11 +127,11 @@ class MatplotlibDrawer:
 
     @visitor(Room)
     def __call__(self, room: Room):
-        x, y = room.exterior_xy
-        self.poly(x, y, fill='#dae3e5')
+        xy = room.exterior_xy
+        self.poly(xy, fill='#dae3e5')
 
-        for x, y in room.interiors_xy:
-            self.poly(x, y, fill='white')
+        for xy in room.interiors_xy:
+            self.poly(xy, fill='white')
 
     @visitor(SeatingPlan)
     def __call__(self, seating_plan: SeatingPlan):
@@ -141,19 +141,19 @@ class MatplotlibDrawer:
     @visitor(Table)
     def __call__(self, table: Table):
         x, y = tuple(map(aslist, table._transformed_table.exterior.xy))
-        self.poly(x, y, stroke='#303631', fill='#545e56')
+        self.poly(list(zip(x, y)), stroke='#303631', fill='#545e56')
 
         x, y = zip(*table.chairs_xy)
         self.scatter(x, y, color='#b79492')
 
     def scatter(self, x, y, color: str = 'black'):
-        self._ax.scatter(x, y, color=color, zorder=3, s=20)
+        self._ax.scatter(x, y, color=color, zorder=3, s=2)
 
-    def poly(self, x, y, *, stroke: str = None, fill: str = None):
+    def poly(self, xy, *, stroke: str = None, fill: str = None):
         if stroke:
-            self._ax.plot(x, y, color=stroke)
+            self._ax.plot(*list(zip(*xy)), color=stroke)
         if fill:
-            self._ax.fill(x, y, color=fill)
+            self._ax.fill(*list(zip(*xy)), color=fill)
 
     def show(self):
         plt.show()
