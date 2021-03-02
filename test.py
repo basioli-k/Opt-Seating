@@ -9,9 +9,9 @@ from seating_plan import SeatingPlan
 
 if __name__ == '__main__':
     room = room_factory.create(
-        'o',
+        'delta',
         width='12m',
-        inner_width='3m'
+        height='30m'
     )
     tables = (
         *table_factory.create_multiple(6, 'ltrb', width=150, height=80, ltrb=(0, 2, 0, 2)),
