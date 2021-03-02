@@ -19,8 +19,7 @@ if __name__ == '__main__':
         *table_factory.create_multiple(4, 'ltrb', width=150, height=150, ltrb=(2, 2, 2, 2)),
     )
 
-    seating_plan = SeatingPlan(tables, tuple())
-
+    seating_plan = SeatingPlan(tables, tuple(True for i in range(len(tables))))
     mutator = Mutator(
         room,
         table_mutation_probability=.02,
@@ -36,7 +35,7 @@ if __name__ == '__main__':
 
         best_fitness, best_instance = evaluated_population[0]
         worst_fitness, worst_instance = evaluated_population[-1]
-
+        print("no of used tables: ",best_instance.used_tables())
         print(f"iteration: {i}, "
               f"population size: {len(evaluated_population)}, "
               f"fittness range: {abs(round(best_fitness,2))}-{abs(round(worst_fitness,2))}")
@@ -49,7 +48,7 @@ if __name__ == '__main__':
         evaluate_fn=evaluator,
         log_fn=log_fn,
         initial_population=(seating_plan,),
-        max_population_size=1,
+        max_population_size=5,
         num_iterations=10_000,
     )
 
