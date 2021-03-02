@@ -79,18 +79,21 @@ def create_template(name: str, **kwargs: Any) -> TableTemplate:
 
 def create_table(
         name: str,
+        room_dims: Tuple[float, float],
         **kwargs,
 ):
+    room_x, room_y = room_dims
     return Table(
         template=create_template(name, **kwargs),
-        offset_x=(random.random() - 0.5) * 20 * 100,
-        offset_y=(random.random() - 0.5) * 20 * 100,
+        offset_x=random.randrange(-room_x//2, room_x//2)*100,
+        offset_y=random.randrange(-room_y//2, room_y//2)*100,
     )
 
 
 def create_multiple(
         n: int,
         name: str,
+        room_dims: Tuple[float, float],
         **kwargs,
 ):
-    return [create_table(name, **kwargs) for _ in range(n)]
+    return [create_table(name, room_dims, **kwargs) for _ in range(n)]
