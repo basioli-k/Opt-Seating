@@ -12,7 +12,7 @@ from table import Table
 
 
 def harmonic_mean(arr: np.ndarray) -> float:
-    return arr.size / np.sum(1 / arr)
+    return arr.size / np.sum(1 / arr[arr > 0])
 
 
 def harmonic_mean_of_worst(arr: np.ndarray, worst_ratio: float = 0.1) -> float:

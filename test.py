@@ -14,9 +14,27 @@ if __name__ == '__main__':
         height='30m'
     )
     tables = (
-        *table_factory.create_multiple(6, 'ltrb', width=150, height=80, ltrb=(0, 2, 0, 2)),
-        *table_factory.create_multiple(6, 'ltrb', width=130, height=75, ltrb=(0, 2, 0, 2)),
-        *table_factory.create_multiple(4, 'ltrb', width=150, height=150, ltrb=(2, 2, 2, 2)),
+        *table_factory.create_multiple(6,
+                                       'ltrb',
+                                       width=150,
+                                       height=80,
+                                       ltrb=(0, 2, 0, 2),
+                                       room_dims=(12, 30),
+                                       ),
+        *table_factory.create_multiple(6,
+                                       'ltrb',
+                                       width=130,
+                                       height=75,
+                                       ltrb=(0, 2, 0, 2),
+                                       room_dims=(12, 30),
+                                       ),
+        *table_factory.create_multiple(4,
+                                       'ltrb',
+                                       width=150,
+                                       height=150,
+                                       ltrb=(2, 2, 2, 2),
+                                       room_dims=(12, 30),
+                                       ),
     )
 
     seating_plan = SeatingPlan(tables, tuple())
