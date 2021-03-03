@@ -2,14 +2,7 @@ import base64
 import datetime
 import io
 
-import cProfile
-import room_factory
-import table_factory
-from evaluator import Evaluator
-from mutator import Mutator
-from plt import visualize_solution, animate
-from searcher import Searcher
-from seating_plan import SeatingPlan
+from optimal_seating import optimal_seating
 
 import dash
 from dash.dependencies import Input, Output, State
@@ -41,7 +34,7 @@ app.layout = html.Div([
             html.A('Select Files')
         ]),
         style={
-            'width': '100%',
+            'width': '99%',
             'height': '60px',
             'lineHeight': '60px',
             'borderWidth': '1px',
@@ -56,58 +49,6 @@ app.layout = html.Div([
     html.P(id='output-text'),
     html.Div(id='output-data-upload'),
 ])
-
-def optimal_seating(df):
-
-    room = room_factory.create(
-        df.loc[0][0],
-        width=df.loc[0][1],
-        inner_width=df.loc[0][2]
-    )
-
-    tables = ()
-    for index, row in df.iterrows():
-        if index == 0: 
-            continue
-        tables = tables + (*table_factory.create_multiple(int(row[0]), row[1], width=int(row[2]), height=int(row[3]), ltrb=(int(row[4]), int(row[5]), int(row[6]), int(row[7]))),)
-
-    seating_plan = SeatingPlan(tables, tuple())
-
-    mutator = Mutator(
-        room,
-        table_mutation_probability=.02,
-        table_mutation_offset_stdev=100,
-        table_mutation_angle_sigma=10,
-    )
-
-    evaluator = Evaluator(room)
-
-    def log_fn(i, evaluated_population):
-        if i % 100:
-            return
-
-        best_fitness, best_instance = evaluated_population[0]
-        worst_fitness, worst_instance = evaluated_population[-1]
-
-        print(f"iteration: {i}, "
-              f"population size: {len(evaluated_population)}, "
-              f"fittness range: {abs(round(best_fitness,2))}-{abs(round(worst_fitness,2))}")
-        visualize_solution(room, best_instance, save=f'data/{i:05d}.png')
-
-    searcher = Searcher()
-
-    run = lambda: searcher(
-        mutate_fn=mutator,
-        evaluate_fn=evaluator,
-        log_fn=log_fn,
-        initial_population=(seating_plan,),
-        max_population_size=1,
-        num_iterations=10_000,
-    )
-
-    run()
-    animate()
-
 
 def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
