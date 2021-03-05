@@ -25,12 +25,16 @@ def most_distant_enclosed_points(xys):
     return zip(candidates[indices], distances.argmin(axis=0)[indices])
 
 
-def table_centroids_np(tables: Tuple[Table, ...]) -> np.ndarray:
+def table_centroids_np(tables: np.array) -> np.ndarray:
     """
     :param tables: tuple of tables
     :return: numpy array of (x,y) pairs of table centroid coordinates
     """
-    return np.array(tuple((table.offset_x, table.offset_y) for table in tables))
+    return np.array(
+        [
+            (table.offset_x, table.offset_y) for table in tables
+        ]
+    )
 
 
 def _move_away_from(seating_plan: SeatingPlan) -> np.ndarray:
@@ -38,9 +42,12 @@ def _move_away_from(seating_plan: SeatingPlan) -> np.ndarray:
     :param seating_plan
     :return: for each table in the seating plan, returns the centroid of a table closest to it
     """
-    centroids = table_centroids_np(seating_plan.tables)
+
+
+    centroids = table_centroids_np(seating_plan.tables[seating_plan.used_tables_mask])
 
     directions = np.expand_dims(centroids, axis=0) - np.expand_dims(centroids, axis=1)
+
     closest_distances_index = np.argmin(
         np.sum(
             np.square(directions),
@@ -49,7 +56,14 @@ def _move_away_from(seating_plan: SeatingPlan) -> np.ndarray:
         axis=-1
     )
 
-    return directions[tuple(zip(*enumerate(closest_distances_index)))]
+    return directions[
+        tuple(
+            zip(
+                *enumerate(
+                    closest_distances_index)
+            )
+        )
+    ]
 
 
 class Offsets:
@@ -107,14 +121,19 @@ class Mutator:
             self.maybe_voronoi(
                 replace(
                     seating_plan,
-                    tables=tuple(
-                        self._mv_table(table) if random.random() < self.table_mutation_probability else table
-                        for table in seating_plan.tables
+                    tables=np.array(
+                        tuple(
+                            self._mv_table(table) if random.random() < self.table_mutation_probability else table
+                            for table in seating_plan.tables
+                        )
                     ),
-                    used_tables_mask=tuple(
-                        bit ^ (random.random() < self.used_tables_mutation_probability)
-                        for bit in seating_plan.used_tables_mask
-                    ),
+                    used_tables_mask=
+                    np.array(
+                        tuple(
+                            bit ^ (random.random() < self.used_tables_mutation_probability)
+                            for bit in seating_plan.used_tables_mask
+                        ),
+                    )
                 )
             )
         )
@@ -141,7 +160,7 @@ class Mutator:
     def _mv_from_closest_table(self, table: Table) -> Tuple[float, float]:
         mv_from_x, mv_from_y = next(self.offsets())
 
-        if mv_from_x == table.offset_x or mv_from_x == table.offset_x:
+        if mv_from_x == table.offset_x or mv_from_y == table.offset_y:
             return self._mv_gaussian(table)
 
         ratio = self.table_distancing_factor
@@ -166,7 +185,7 @@ class Mutator:
             for xy in zip(*interior.xy)
         ) + tuple(
             xy
-            for table in seating_plan.tables
+            for table, present in zip(seating_plan.tables, seating_plan.used_tables_mask) if present
             for xy in zip(*table.convex_hull.exterior.xy)
         )
 
@@ -175,25 +194,25 @@ class Mutator:
             i = random.randint(0, len(tables) - 1)
             yield replace(
                 seating_plan,
-                tables=tuple(
+                tables=np.array(tuple(
                     replace(
                         table,
                         offset_x=x,
                         offset_y=y,
                     ) if i == j else table
                     for j, table in enumerate(tables)
-                ),
+                )),
             )
             yield replace(
                 seating_plan,
-                tables=tuple(
+                tables=np.array(tuple(
                     replace(
                         table,
                         offset_x=table.offset_x * 0.9 + x * 0.1,
                         offset_y=table.offset_y * 0.9 + y * 0.1,
                     ) if table_idx == j else table
                     for j, table in enumerate(tables)
-                )
+                ))
             )
 
     def maybe_swap_tables(self, seating_plan: SeatingPlan) -> SeatingPlan:
@@ -201,15 +220,17 @@ class Mutator:
             return seating_plan
 
         tables = seating_plan.tables
-        j = random.randint(0, len(tables) - 1)
-        k = random.randint(0, len(tables) - 1)
+
+        present = [ind for ind, pres in enumerate(seating_plan.used_tables_mask) if pres]
+        j, k = random.choices(present, k=2)
+
         return replace(
             seating_plan,
-            tables=tuple(
+            tables=np.array(tuple(
                 replace(
                     table,
                     template=tables[j if i == k else k].template,
                     angle=tables[j if i == k else k].angle,
                 ) if i in (j, k) else table for i, table in enumerate(tables)
-            )
+            ))
         )

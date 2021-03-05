@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import numpy as np
 from shapely.affinity import translate, rotate
 from shapely.geometry import Polygon, MultiPoint
 
@@ -25,11 +26,20 @@ class Table:
 
     @property
     @with_backing_field
-    def xy(self):
+    def xy(self) -> np.ndarray:
         """
         :return: tuple coordinates (x,y) of points defining the table
         """
-        return tuple(zip(*map(aslist, self._transformed_table.exterior.xy)))
+        return np.array(
+            tuple(
+                zip(
+                    *map(
+                        aslist,
+                        self._transformed_table.exterior.xy
+                    )
+                )
+            )
+        )
 
     @property
     @with_backing_field
@@ -39,14 +49,17 @@ class Table:
         """
         table_centroid = self.template.exterior.centroid
 
-        return tuple((chair.x, chair.y) for chair in translate(
-                rotate(
-                    self.template.chairs,
-                    angle=self.angle,
-                    origin=table_centroid,
-                ),
-                xoff=self.offset_x,
-                yoff=self.offset_y,
+        return np.array(
+            tuple(
+                (chair.x, chair.y) for chair in translate(
+                    rotate(
+                        self.template.chairs,
+                        angle=self.angle,
+                        origin=table_centroid,
+                    ),
+                    xoff=self.offset_x,
+                    yoff=self.offset_y,
+                )
             )
         )
 

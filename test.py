@@ -1,4 +1,7 @@
 import cProfile
+
+import numpy as np
+
 import room_factory
 import table_factory
 from evaluator import Evaluator
@@ -13,31 +16,33 @@ if __name__ == '__main__':
         width='12m',
         height='30m'
     )
-    tables = (
-        *table_factory.create_multiple(6,
-                                       'ltrb',
-                                       width=150,
-                                       height=80,
-                                       ltrb=(0, 2, 0, 2),
-                                       room_dims=(12, 30),
-                                       ),
-        *table_factory.create_multiple(6,
-                                       'ltrb',
-                                       width=130,
-                                       height=75,
-                                       ltrb=(0, 2, 0, 2),
-                                       room_dims=(12, 30),
-                                       ),
-        *table_factory.create_multiple(4,
-                                       'ltrb',
-                                       width=150,
-                                       height=150,
-                                       ltrb=(2, 2, 2, 2),
-                                       room_dims=(12, 30),
-                                       ),
+    tables = np.array(
+        [
+            *table_factory.create_multiple(6,
+                                           'ltrb',
+                                           width=150,
+                                           height=80,
+                                           ltrb=(0, 2, 0, 2),
+                                           room_dims=(12, 30),
+                                           ),
+            *table_factory.create_multiple(6,
+                                           'ltrb',
+                                           width=130,
+                                           height=75,
+                                           ltrb=(0, 2, 0, 2),
+                                           room_dims=(12, 30),
+                                           ),
+            *table_factory.create_multiple(4,
+                                           'ltrb',
+                                           width=150,
+                                           height=150,
+                                           ltrb=(2, 2, 2, 2),
+                                           room_dims=(12, 30),
+                                           ),
+        ]
     )
 
-    seating_plan = SeatingPlan(tables, tuple(True for i in range(len(tables))))
+    seating_plan = SeatingPlan(tables, np.repeat(True, len(tables)))
     mutator = Mutator(
         room,
         table_mutation_probability=.02,
@@ -47,17 +52,19 @@ if __name__ == '__main__':
 
     evaluator = Evaluator(room)
 
+
     def log_fn(i, evaluated_population):
         if i % 100:
             return
 
         best_fitness, best_instance = evaluated_population[0]
         worst_fitness, worst_instance = evaluated_population[-1]
-        print("no of used tables: ",best_instance.used_tables())
+        print("no of used tables: ", best_instance.used_tables())
         print(f"iteration: {i}, "
               f"population size: {len(evaluated_population)}, "
-              f"fittness range: {abs(round(best_fitness,2))}-{abs(round(worst_fitness,2))}")
+              f"fittness range: {abs(round(best_fitness, 2))}-{abs(round(worst_fitness, 2))}")
         visualize_solution(room, best_instance, save=f'data/{i:05d}.png')
+
 
     searcher = Searcher()
 

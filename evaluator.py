@@ -39,12 +39,13 @@ class Evaluator:
 
     def __call__(self, seating_plan: SeatingPlan) -> float:
         chair_distance_fitness = self._chair_distance_fitness(seating_plan)
-
         tables_in_room_fitness = self._tables_room_distance_fitness(seating_plan)
-
         tables_not_overlapping_fitness = 0  # self._tables_distance_fitness(seating_plan)
 
-        return chair_distance_fitness + tables_in_room_fitness + tables_not_overlapping_fitness
+        used_tables = np.sum(seating_plan.used_tables_mask)
+        fitness = chair_distance_fitness + tables_in_room_fitness + tables_not_overlapping_fitness
+
+        return min(0, used_tables + fitness)
 
     def _tables_room_distance_fitness(self, seating_plan: SeatingPlan) -> float:
         return sum(map(lambda x: x, map(self._table_room_distance_fitness, seating_plan.tables)))
