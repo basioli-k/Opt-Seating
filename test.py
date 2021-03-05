@@ -42,7 +42,11 @@ if __name__ == '__main__':
         ]
     )
 
-    seating_plan = SeatingPlan(tables, np.repeat(True, len(tables)))
+    seating_plan = SeatingPlan(
+        tables,
+        np.repeat(True, len(tables)),
+        3000
+    )
     mutator = Mutator(
         room,
         table_mutation_probability=.02,

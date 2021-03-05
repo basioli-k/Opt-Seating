@@ -49,6 +49,7 @@ class Searcher(Generic[T]):
 
         evaluated_population = _evaluate_population(initial_population)
         for i in range(num_iterations):
+            evaluated_population = list(set(evaluated_population))
             evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
             evaluated_population = evaluated_population[:max_population_size]
             log_fn(i, evaluated_population)

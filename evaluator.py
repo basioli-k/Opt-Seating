@@ -1,6 +1,5 @@
 import itertools
 from dataclasses import dataclass
-from typing import Tuple
 
 import numpy as np
 from scipy.linalg import block_diag
@@ -19,11 +18,12 @@ def harmonic_mean_of_worst(arr: np.ndarray, worst_ratio: float = 0.1) -> float:
     return harmonic_mean(np.sort(arr)[:int(round(worst_ratio * arr.size))])
 
 
-def chairs_np(tables: Tuple[Table, ...]) -> np.ndarray:
-    return np.array(tuple(xy for table in tables for xy in table.chairs_xy))
+def chairs_np(tables: np.ndarray) -> np.ndarray:
+
+    return np.concatenate([table.chairs_xy for table in tables])
 
 
-def calculate_mask_different_table(tables: Tuple[Table, ...]):
+def calculate_mask_different_table(tables: np.ndarray):
     return np.logical_not(
         block_diag(*(
             np.ones((number_of_chairs, number_of_chairs), dtype='bool')
