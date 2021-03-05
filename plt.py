@@ -135,8 +135,9 @@ class MatplotlibDrawer:
 
     @visitor(SeatingPlan)
     def __call__(self, seating_plan: SeatingPlan):
-        for table in seating_plan.tables:
-            self(table)
+        for i in range (len(seating_plan.tables)):
+            if seating_plan.used_tables_mask[i]:
+                self(seating_plan.tables[i])
 
     @visitor(Table)
     def __call__(self, table: Table):
