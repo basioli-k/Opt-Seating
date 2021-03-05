@@ -53,16 +53,20 @@ class Searcher(Generic[T]):
             evaluated_population = evaluated_population[:max_population_size]
             log_fn(i, evaluated_population)
 
-            temp = []
-            for fitness, x in random.choices(
-                    evaluated_population,
-                    k=children_per_iteration,
-            ):
-                for c in mutate_fn(x):
-                    child_fitness = evaluate_fn(c)
-                    if np.linalg.norm(metric(c) - metric(x)) < 1:
-                        temp.append((child_fitness, c))
-
+            children = _evaluate_population(
+                tuple(
+                    c
+                    for x in
+                    map(
+                        operator.itemgetter(1),
+                        random.choices(
+                            evaluated_population,
+                            k=children_per_iteration,
+                        )
+                    )
+                    for c in mutate_fn(x)
+                )
+            )
             evaluated_population.extend(
-                temp
+                children
             )

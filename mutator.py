@@ -10,6 +10,7 @@ from table import Table
 from visitor import visitor
 from scipy.spatial import Voronoi
 
+import matplotlib.pyplot as plt
 
 def most_distant_enclosed_points(xys):
     """
@@ -17,6 +18,25 @@ def most_distant_enclosed_points(xys):
     :return: a selection of points sorted by decreasing distance from xys
     """
     candidates = Voronoi(xys).vertices
+
+    xs, ys = list(zip(*xys))
+    x_min = min(xs)
+    x_max = max(xs)
+    y_min = min(ys)
+    y_max = max(ys)
+
+    candidates = candidates[
+        np.logical_and(
+            np.logical_and(
+                candidates[:, 0] <= x_max,
+                candidates[:, 0] >= x_min
+            ),
+            np.logical_and(
+                candidates[:, 1] <= y_max,
+                candidates[:, 1] >= y_min
+            )
+        )
+    ]
 
     distances = np.square(np.expand_dims(xys, axis=1) - np.expand_dims(candidates, axis=0)).sum(axis=-1)
 
@@ -42,20 +62,16 @@ def _move_away_from(seating_plan: SeatingPlan) -> np.ndarray:
     :param seating_plan
     :return: for each table in the seating plan, returns the centroid of a table closest to it
     """
-
-
     centroids = table_centroids_np(seating_plan.tables[seating_plan.used_tables_mask])
-
     directions = np.expand_dims(centroids, axis=0) - np.expand_dims(centroids, axis=1)
 
     closest_distances_index = np.argmin(
         np.sum(
-            np.square(directions),
+            np.square(directions/100),
             axis=-1
         ) + 100_000 * np.eye(directions.shape[0]),
         axis=-1
     )
-
     return directions[
         tuple(
             zip(
@@ -80,7 +96,7 @@ class Mutator:
                  table_mutation_probability: float = 0.1,
 
                  table_mutation_offset_stdev: float = 30,
-                 table_distancing_factor: float = 2,
+                 table_distancing_factor: float = .2,
                  prefer_gauss_move_ratio: float = .7,
 
                  table_mutation_angle_sigma: float = 10,
@@ -142,6 +158,9 @@ class Mutator:
         new_x, new_y = self._mv_gaussian(table) if random.random() < self.prefer_gauss_move_ratio \
             else self._mv_from_closest_table(table)
 
+        if max(new_x, new_y) > 10_000 or min(new_x, new_y) < -10_000:
+            print(f"mv_table: {new_x}, {new_y}")
+
         return replace(
             table,
             offset_x=new_x,
@@ -164,8 +183,8 @@ class Mutator:
             return self._mv_gaussian(table)
 
         ratio = self.table_distancing_factor
-        new_x = (1 + ratio) * table.offset_x + (-ratio) * mv_from_x
-        new_y = (1 + ratio) * table.offset_y + (-ratio) * mv_from_y
+        new_x = table.offset_x + ratio * mv_from_x
+        new_y = table.offset_y + ratio * mv_from_y
 
         return new_x, new_y
 
@@ -184,14 +203,18 @@ class Mutator:
             for interior in self.room.poly.interiors
             for xy in zip(*interior.xy)
         ) + tuple(
-            xy
-            for table, present in zip(seating_plan.tables, seating_plan.used_tables_mask) if present
-            for xy in zip(*table.convex_hull.exterior.xy)
+            (table.offset_x, table.offset_y)
+            for table in seating_plan.tables[seating_plan.used_tables_mask]
         )
 
         for _, ((x, y), table_idx) in zip(range(1), most_distant_enclosed_points(np.array(xys))):
             tables = seating_plan.tables
             i = random.randint(0, len(tables) - 1)
+
+            if max(x, y) > 10_000 or min(x, y) < -10_000:
+                print(f"Voronoi: {x}, {y}")
+                exit(1)
+
             yield replace(
                 seating_plan,
                 tables=np.array(tuple(

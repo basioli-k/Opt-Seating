@@ -44,8 +44,9 @@ class Evaluator:
 
         used_tables = np.sum(seating_plan.used_tables_mask)
         fitness = chair_distance_fitness + tables_in_room_fitness + tables_not_overlapping_fitness
-
-        return min(0, used_tables + fitness) if fitness<0 else used_tables
+        if fitness==0:
+            print(used_tables)
+        return min(0, used_tables + fitness) if fitness < 0 else used_tables
 
     def _tables_room_distance_fitness(self, seating_plan: SeatingPlan) -> float:
         return sum(map(lambda x: x, map(self._table_room_distance_fitness, seating_plan.tables)))
