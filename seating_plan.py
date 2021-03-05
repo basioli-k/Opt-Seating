@@ -8,4 +8,3 @@ from table import Table
 class SeatingPlan:
     tables: Tuple[Table, ...]
     used_tables_mask: Tuple[bool, ...]
-
