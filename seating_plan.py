@@ -20,4 +20,4 @@ class SeatingPlan:
         return int(sum(d * 10 ** i for i, d in enumerate(hist[0][::-1])))
 
     def __eq__(self, other):
-        return self.__hash__() == other.__hash__()
+        return hash(self) == hash(other)

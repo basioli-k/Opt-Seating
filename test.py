@@ -49,9 +49,9 @@ if __name__ == '__main__':
     )
     mutator = Mutator(
         room,
-        table_mutation_probability=.02,
+        table_mutation_probability=.1,
         table_mutation_offset_stdev=100,
-        table_mutation_angle_sigma=10,
+        table_mutation_angle_sigma=0,
     )
 
     evaluator = Evaluator(room)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         evaluate_fn=evaluator,
         log_fn=log_fn,
         initial_population=(seating_plan,),
-        max_population_size=5,
+        max_population_size=10,
         num_iterations=10_000,
     )
 
