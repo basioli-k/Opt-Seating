@@ -7,7 +7,6 @@ from seating_plan import SeatingPlan
 
 T = TypeVar('T')
 
-
 def metric(plan: SeatingPlan):
     tables_x = np.array([table.offset_x > 0 for table in plan.tables])
     tables_y = np.array([table.offset_y > 0 for table in plan.tables])
@@ -17,7 +16,6 @@ def metric(plan: SeatingPlan):
     third_quadrant = np.sum(tables_x * np.logical_not(tables_y))
     fourth_quadrant = np.sum(np.logical_not(tables_x) * np.logical_not(tables_y))
     return np.array([first_quadrant, second_quadrant, third_quadrant, fourth_quadrant])
-
 
 @dataclass(frozen=True)
 class Searcher(Generic[T]):

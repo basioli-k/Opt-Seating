@@ -11,6 +11,8 @@ from util import with_backing_field, aslist
 class TableTemplate:
     exterior: Polygon
     chairs: MultiPoint
+    width: float
+    height: float
 
     @property
     def number_of_chairs(self):
@@ -88,3 +90,7 @@ class Table:
     @property
     def number_of_chairs(self):
         return self.template.number_of_chairs
+
+
+
+
