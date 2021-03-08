@@ -1,0 +1,5 @@
+number_of_seats,ltrb,width,height,l,t,r,b
+rect,22m,16m
+10,ltrb,350,100,1,4,1,4
+10,ltrb,90,90,1,1,1,1
+10,ltrb,170,100,1,2,1,2
