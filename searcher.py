@@ -21,25 +21,16 @@ def metric(plan: SeatingPlan):
     fourth_quadrant = np.sum(np.logical_not(tables_x) * np.logical_not(tables_y))
     return np.array([first_quadrant, second_quadrant, third_quadrant, fourth_quadrant])
 
-
-def print_to_file(plan: SeatingPlan, time_in_seconds: float, path='./results/calculate.txt'):
-    chair_distance_threshold = 200
+#svaki input spremat u svoj input (promijeniti path treba u "./result/output_" + input_file name npr
+def print_to_file(fitness: float,plan: SeatingPlan, time_in_seconds: float, path='./results/calculate.txt'):
     used_chairs = np.sum([len(table.template.chairs) for table in plan.tables[plan.used_tables_mask]])
-    print(used_chairs)
     total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
-    print(total_chairs)
-
-    mask_different_table = calculate_mask_different_table(plan.tables)
-    chairs = chairs_np(plan.tables)
-    distances = np.sqrt(np.sum(np.square(np.expand_dims(chairs, axis=0) - np.expand_dims(chairs, axis=1)), axis=-1))
-    closest_distances = np.min(np.where(mask_different_table, distances, np.inf), axis=-1)
-    closest_distances = np.minimum(closest_distances, chair_distance_threshold)
 
     import sys
     standard_output = sys.stdout
-    with open(path, 'a') as file:  # change here to some specific file name
+    with open(path, 'a') as file:
         sys.stdout = file
-        print(f"{used_chairs},{total_chairs},{time_in_seconds}")
+        print(f"{used_chairs},{total_chairs},{time_in_seconds},{fitness >= 0}")
 
     sys.stdout = standard_output
 
@@ -100,4 +91,4 @@ class Searcher(Generic[T]):
         evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
         evaluated_population = evaluated_population[:max_population_size]
         t2 = time.time()
-        print_to_file(evaluated_population[0][1], t2 - t1)
+        print_to_file(evaluated_population[0][0], evaluated_population[0][1], t2 - t1)
