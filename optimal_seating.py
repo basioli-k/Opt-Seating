@@ -14,32 +14,32 @@ from seating_plan import SeatingPlan
 import numpy as np
 
 import pandas as pd
-room_width = -1
-room_height = -1
 def read_room(df):
+    room_width = -1
+    room_height = -1
     if df.loc[0][0] == 'o':
         room = room_factory.create(
             df.loc[0][0],
             width=df.loc[0][1],
             inner_width=df.loc[0][2]
         )
-        room_width = df.loc[0][1]
-        room_height = df.loc[0][1]
+        room_width = int(df.loc[0][1][:-1])
+        room_height = int(df.loc[0][1][:-1])
     elif df.loc[0][0] == 'circle':
         room = room_factory.create(
             df.loc[0][0],
             width=df.loc[0][1],
         )
-        room_width = df.loc[0][1]
-        room_height = df.loc[0][1]
+        room_width = int(df.loc[0][1][:-1])
+        room_height = int(df.loc[0][1][:-1])
     elif df.loc[0][0] == 'delta' or df.loc[0][0] == 'rect':
         room = room_factory.create(
             df.loc[0][0],
             width=df.loc[0][1],
             height=df.loc[0][2]
         )
-        room_width = df.loc[0][1]
-        room_height = df.loc[0][2]
+        room_width = int(df.loc[0][1][:-1])
+        room_height = int(df.loc[0][2][:-1])
     elif df.loc[0][0] == 'L':
         room = room_factory.create(
             df.loc[0][0],
@@ -48,14 +48,14 @@ def read_room(df):
             smaller_width=df.loc[0][3],
             smaller_height=df.loc[0][4]
         )
-        room_width = df.loc[0][1]
-        room_height = df.loc[0][2]
-    return room
+        room_width = int(df.loc[0][1][:-1])
+        room_height = int(df.loc[0][2][:-1])
+    return room, room_width, room_height
 
 
 def optimal_seating(df):
 
-    room = read_room(df)
+    room, room_width, room_height = read_room(df)
 
     tables = ()
     for index, row in df.iterrows():
@@ -66,7 +66,7 @@ def optimal_seating(df):
                                                           ltrb=(int(row[4]), int(row[5]), int(row[6]), int(row[7]))),)
 
     seating_plan = SeatingPlan(
-        tables,
+        np.array(tables),
         np.repeat(True, len(tables)),
         3000
     )
