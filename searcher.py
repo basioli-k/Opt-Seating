@@ -27,10 +27,19 @@ def print_to_file(fitness: float,plan: SeatingPlan, time_in_seconds: float, path
     total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
 
     import sys
+    import os.path
+
     standard_output = sys.stdout
+    if(not os.path.exists(path)):
+        with open(path, 'a') as file:
+            sys.stdout = file
+            print(f"used,total,time,success")
+
+
     with open(path, 'a') as file:
         sys.stdout = file
         print(f"{used_chairs},{total_chairs},{time_in_seconds},{fitness >= 0}")
+
 
     sys.stdout = standard_output
 

@@ -80,7 +80,7 @@ def optimal_seating(df):
     evaluator = Evaluator(room)
 
     def log_fn(i, evaluated_population):
-        if i % 100:
+        if i % 9999:
             return
 
         best_fitness, best_instance = evaluated_population[0]
