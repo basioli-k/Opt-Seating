@@ -21,28 +21,6 @@ def metric(plan: SeatingPlan):
     fourth_quadrant = np.sum(np.logical_not(tables_x) * np.logical_not(tables_y))
     return np.array([first_quadrant, second_quadrant, third_quadrant, fourth_quadrant])
 
-#svaki input spremat u svoj input (promijeniti path treba u "./result/output_" + input_file name npr
-def print_to_file(fitness: float,plan: SeatingPlan, time_in_seconds: float, path='./results/calculate.txt'):
-    used_chairs = np.sum([len(table.template.chairs) for table in plan.tables[plan.used_tables_mask]])
-    total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
-
-    import sys
-    import os.path
-
-    standard_output = sys.stdout
-    if(not os.path.exists(path)):
-        with open(path, 'a') as file:
-            sys.stdout = file
-            print(f"used,total,time,success")
-
-
-    with open(path, 'a') as file:
-        sys.stdout = file
-        print(f"{used_chairs},{total_chairs},{time_in_seconds},{fitness >= 0}")
-
-
-    sys.stdout = standard_output
-
 
 @dataclass(frozen=True)
 class Searcher(Generic[T]):
@@ -100,4 +78,4 @@ class Searcher(Generic[T]):
         evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
         evaluated_population = evaluated_population[:max_population_size]
         t2 = time.time()
-        print_to_file(evaluated_population[0][0], evaluated_population[0][1], t2 - t1)
+        return evaluated_population[0][0], evaluated_population[0][1], (t2 - t1)

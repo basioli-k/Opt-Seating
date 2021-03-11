@@ -44,12 +44,11 @@ class Evaluator:
 
         used_tables = np.sum(seating_plan.used_tables_mask)
         fitness = chair_distance_fitness + tables_in_room_fitness + tables_not_overlapping_fitness
-        if fitness==0:
-            print(used_tables)
-        return min(0, used_tables + fitness) if fitness < 0 else used_tables
+
+        return min(0,fitness + used_tables) if fitness < 0 else used_tables
 
     def _tables_room_distance_fitness(self, seating_plan: SeatingPlan) -> float:
-        return sum(map(lambda x: x, map(self._table_room_distance_fitness, seating_plan.tables)))
+        return sum(map(lambda x: x, map(self._table_room_distance_fitness, seating_plan.tables[seating_plan.used_tables_mask])))
 
     def _table_room_distance_fitness(self, table: Table) -> float:
         room_poly = self.room.poly
@@ -65,8 +64,8 @@ class Evaluator:
         return -2 * self.chair_distance_threshold - room_poly.distance(convex_hull)
 
     def _chair_distance_fitness(self, seating_plan: SeatingPlan) -> float:
-        mask_different_table = calculate_mask_different_table(seating_plan.tables)
-        chairs = chairs_np(seating_plan.tables)
+        mask_different_table = calculate_mask_different_table(seating_plan.tables[seating_plan.used_tables_mask])
+        chairs = chairs_np(seating_plan.tables[seating_plan.used_tables_mask])
 
         distances = np.sqrt(np.sum(np.square(np.expand_dims(chairs, axis=0) - np.expand_dims(chairs, axis=1)), axis=-1))
 

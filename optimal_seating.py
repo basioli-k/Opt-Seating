@@ -14,6 +14,8 @@ from seating_plan import SeatingPlan
 import numpy as np
 
 import pandas as pd
+
+
 def read_room(df):
     room_width = -1
     room_height = -1
@@ -53,13 +55,32 @@ def read_room(df):
     return room, room_width, room_height
 
 
-def optimal_seating(df):
+def print_to_file(fitness: float, plan: SeatingPlan, time_in_seconds: float, filename='calculated.csv', iterations = 10_000):
+    path = f'./results/output-{iterations}.csv'  #dodati filename kasnije
+    used_chairs = np.sum([len(table.template.chairs) for table in plan.tables[plan.used_tables_mask]])
+    total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
 
+    import sys
+    import os.path
+
+    standard_output = sys.stdout
+    if (not os.path.exists(path)):
+        with open(path, 'a') as file:
+            sys.stdout = file
+            print(f"used,total,time,success")
+
+    with open(path, 'a') as file:
+        sys.stdout = file
+        print(f"{used_chairs},{total_chairs},{time_in_seconds},{fitness >= 0}")
+    sys.stdout = standard_output
+
+
+def optimal_seating(df, filename='calculated.csv', iterations = 10_000):
     room, room_width, room_height = read_room(df)
 
     tables = ()
     for index, row in df.iterrows():
-        if index == 0: 
+        if index == 0:
             continue
         tables = tables + (*table_factory.create_multiple(int(row[0]), row[1], room_dims=(room_width, room_height),
                                                           width=int(row[2]), height=int(row[3]),
@@ -80,7 +101,7 @@ def optimal_seating(df):
     evaluator = Evaluator(room)
 
     def log_fn(i, evaluated_population):
-        if i % 9999:
+        if i % 100:
             return
 
         best_fitness, best_instance = evaluated_population[0]
@@ -99,8 +120,9 @@ def optimal_seating(df):
         log_fn=log_fn,
         initial_population=(seating_plan,),
         max_population_size=10,
-        num_iterations=10_000,
+        num_iterations=iterations,
     )
 
-    run()
+    fitness, population, time = run()
     animate()
+    print_to_file(fitness, population, time, filename, iterations)
