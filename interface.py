@@ -46,8 +46,7 @@ app.layout = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-    html.P(id='output-text'),
-    html.Div(id='output-data-upload'),
+    dcc.Loading(id="loading", type="circle", fullscreen=True, children=html.Div(id="loading-output"))
 ])
 
 def parse_contents(contents, filename, date):
@@ -69,15 +68,8 @@ def parse_contents(contents, filename, date):
         ])
 
     optimal_seating(df)
-@app.callback([Output('output-text', 'children')],
-             [Input('upload-data', 'contents')],
-              [State('upload-data', 'filename'),
-              State('upload-data', 'last_modified')])
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:  
-        return ["Uspjesno ucitani podaci. Pogledajte novo otvoreni prozor kako biste vidjeli rezultate."]
 
-@app.callback([Output('output-data-upload', 'children')],
+@app.callback([Output('loading-output', 'children')],
              [Input('upload-data', 'contents')],
               [State('upload-data', 'filename'),
               State('upload-data', 'last_modified')])
