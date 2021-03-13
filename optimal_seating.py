@@ -71,6 +71,7 @@ def put_in_file(filename):
     return 'other'
 
 def print_to_file(fitness: float, plan: SeatingPlan, time_in_seconds: float, filename='calculated.csv', iterations = 10_000):
+
     path = f'./results/output-{put_in_file(filename)}.csv'
     used_chairs = np.sum([len(table.template.chairs) for table in plan.tables[plan.used_tables_mask]])
     total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
