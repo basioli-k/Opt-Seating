@@ -14,10 +14,10 @@ if __name__ == '__main__':
             time = np.array(df['time'])
             success = np.array(df['success'])
             print(filename)
-            print(np.average(used[success]))
-            print(np.mean(used[success]))
+            print(np.average(used[success]/total[success]))
+
             print(np.average(time[success]))
-            print(np.mean(time[success]))
+
             print(np.sum(success), "out of", len(success))
             print("-------------")
         else:

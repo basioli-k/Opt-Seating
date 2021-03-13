@@ -157,6 +157,7 @@ class MatplotlibDrawer:
             self._ax.fill(*list(zip(*xy)), color=fill)
 
     def show(self):
+        plt.axis('off')
         plt.show()
 
     def save(self, path='data/img.png'):
