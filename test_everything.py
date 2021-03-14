@@ -10,7 +10,8 @@ if __name__ == '__main__':
             path = f"{directory}/{filename}"
             df = pd.read_csv(path)
             try:
-                optimal_seating(df, filename, 10_000)  #ovo su iteracije
+                for i in range(3):
+                    optimal_seating(df, filename, 10_000)  #ovo su iteracije
             except AssertionError:
                 print("Greške se događaju, u redu je :)")
         else:

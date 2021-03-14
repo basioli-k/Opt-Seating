@@ -19,7 +19,6 @@ def harmonic_mean_of_worst(arr: np.ndarray, worst_ratio: float = 0.1) -> float:
 
 
 def chairs_np(tables: np.ndarray) -> np.ndarray:
-
     return np.concatenate([table.chairs_xy for table in tables])
 
 

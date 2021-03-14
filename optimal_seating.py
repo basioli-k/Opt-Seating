@@ -55,8 +55,24 @@ def read_room(df):
     return room, room_width, room_height
 
 
+
+def put_in_file(filename):
+    if 'circle' in filename:
+        return 'circle'
+    if 'rect' in filename or 'squared' in filename:
+        return 'rect'
+    if 'L_shape' in filename:
+        return 'L_shape'
+    if 'o_shape' in filename:
+        return 'o_shape'
+    if 'delta' in filename:
+        return 'delta'
+
+    return 'other'
+
 def print_to_file(fitness: float, plan: SeatingPlan, time_in_seconds: float, filename='calculated.csv', iterations = 10_000):
-    path = f'./results/output-{filename}.csv'  #dodati filename kasnije
+
+    path = f'./results/output-{put_in_file(filename)}.csv'
     used_chairs = np.sum([len(table.template.chairs) for table in plan.tables[plan.used_tables_mask]])
     total_chairs = np.sum([table.template.number_of_chairs for table in plan.tables])
 
