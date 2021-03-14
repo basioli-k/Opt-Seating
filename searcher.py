@@ -52,9 +52,16 @@ class Searcher(Generic[T]):
 
         t1 = time.time()
         evaluated_population = _evaluate_population(initial_population)
+        j = 0
         for i in range(num_iterations):
             evaluated_population.sort(key=operator.itemgetter(0), reverse=True)
             evaluated_population = evaluated_population[:max_population_size]
+            if(evaluated_population[0][0] == evaluated_population[-1][0] and evaluated_population[-1][0] >= 0):
+                j+=1
+            else:
+                j=0
+            if (j > 100):
+                break;
             log_fn(i, evaluated_population)
 
             children = _evaluate_population(
