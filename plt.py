@@ -4,6 +4,8 @@ from typing import Tuple, Dict
 
 import cv2
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
 from room import Room
